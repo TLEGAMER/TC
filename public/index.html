@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>บันทึกการออกกำลังกาย</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>บันทึกการออกกำลังกาย</h1>
+
+  <form id="activityForm">
+    <input type="text" id="name" placeholder="ชื่อผู้บันทึก" required><br>
+    <input type="text" id="type" placeholder="ประเภทการออกกำลังกาย" required><br>
+    <input type="number" id="duration" placeholder="ระยะเวลา/รอบ" required><br>
+    <input type="date" id="date" required><br>
+    <button type="submit">บันทึกกิจกรรม</button>
+  </form>
+
+  <h2>กิจกรรมที่ผ่านมา</h2>
+  <ul id="activityList"></ul>
+
+  <script>
+    const form = document.getElementById('activityForm');
+    const list = document.getElementById('activityList');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const type = document.getElementById('type').value;
+      const duration = document.getElementById('duration').value;
+      const date = document.getElementById('date').value;
+
+      await fetch('/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, type, duration, date })
+      });
+
+      form.reset();
+      loadActivities();
+    });
+
+    async function loadActivities() {
+      const res = await fetch('/activities');
+      const data = await res.json();
+      list.innerHTML = data.map(a => 
+        `<li>${a.date} - ${a.name} - ${a.type} ${a.duration} นาที</li>`
+      ).join('');
+    }
+
+    loadActivities();
+  </script>
+</body>
+</html>
